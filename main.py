@@ -1,11 +1,41 @@
-import numpy as np
-import cv2
+import functions
 
-img = cv2.imread('resources/noisy.png', cv2.IMREAD_GRAYSCALE)
+from tkinter import *
+from tkinter import filedialog
+from ttk import *
 
-print(img.shape)
+def process(function):
+	options = { 'multiple': False, 'filetypes': [('Images', '.jpg .png')] }
+	name = filedialog.askopenfilename(**options)
 
-cv2.namedWindow('Foto', cv2.WINDOW_NORMAL)
-cv2.imshow('Foto', img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+	if(name):
+		process = getattr(functions, function)
+		process(name)
+	else:
+		return
+	
+root = Tk()
+
+tabs = Notebook(root)
+
+suavizado = Frame(tabs)
+Button(suavizado, text='Filtro mediana', command= lambda: process('median')).pack(anchor='w', padx=10, pady=10)
+Button(suavizado, text='Supresión de ruido', command= lambda: process('denoise')).pack(anchor='w', padx=10, pady=10)
+
+contraste = Frame(tabs)
+Button(contraste, text='Ecualización del histograma', command= lambda: process('equalizeHist')).pack(anchor='w', padx=10, pady=10)
+Button(contraste, text='Ecualización adaptativa del histograma', command= lambda: process('CLAHE')).pack(anchor='w', padx=10, pady=10)
+
+intensidad = Frame(tabs)
+Button(intensidad, text='Trasnformación logarítmica', command= lambda: process('logTransform')).pack(anchor='w', padx=10, pady=10)
+Button(intensidad, text='Trasnformación por potencias', command= lambda: process('gammaCorrection')).pack(anchor='w', padx=10, pady=10)
+
+
+
+tabs.add(suavizado, text = "Suavizado")
+tabs.add(contraste, text = "Contraste")
+tabs.add(intensidad, text = "Intensidad")
+tabs.pack()
+
+Button(master = root, text='Exit', command = lambda: exit()).pack(side = LEFT)
+mainloop()
