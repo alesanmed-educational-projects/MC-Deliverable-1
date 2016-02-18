@@ -136,7 +136,7 @@ tk.Button(suavizado, text='Supresión de ruido', command= lambda: process(root, 
 ###Pestanya de contraste###
 contraste = tk.Frame(tabs)
 tk.Button(contraste, text='Ecualización del histograma', command= lambda: process(root, 'equalizeHist', savefile.get(), None)).pack(anchor='w', padx=10, pady=10)
-tk.Button(contraste, text='Ecualización adaptativa del histograma', command= lambda: process(root, savefile.get(), 'CLAHE', None)).pack(anchor='w', padx=10, pady=10)
+tk.Button(contraste, text='Ecualización adaptativa del histograma', command= lambda: process(root, 'CLAHE', savefile.get(), None)).pack(anchor='w', padx=10, pady=10)
 
 
 ###Pestanya de intensidad###
