@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 from tkinter import filedialog
 
 def process(root, function, savefile, parameter, *filename):
-	options = { 'multiple': False, 'filetypes': [('Images', '.jpg .png')] }
+	options = { 'multiple': False, 'filetypes': [('Images', '.jpg .png .bmp')] }
 	name = filedialog.askopenfilename(**options)
 
 	if(name):
@@ -21,10 +21,25 @@ def process(root, function, savefile, parameter, *filename):
 					images = process(name, k_size)
 			except ValueError:
 				images = process(name)
+		elif function == 'gaussian':
+			try:
+				k_size = int(parameter[0].get())
+				sigma_x = float(parameter[1].get())
+				sigma_y = float(parameter[2].get())
+
+				images = process(name, k_size, sigma_y, sigma_y)
+			except ValueError:
+				return
 		elif function == 'denoise':
 			try:
 				filter_strength = int(parameter.get())
 				images = process(name, filter_strength)
+			except ValueError:
+				images = process(name)
+		elif function == 'CLAHE':
+			try:
+				clip_limit = float(parameter.get())
+				images = process(name, clip_limit)
 			except ValueError:
 				images = process(name)
 		elif function == 'gammaCorrection':
@@ -133,10 +148,25 @@ filter_strength = tk.StringVar()
 tk.Entry(suavizado, textvariable=filter_strength).grid(row=2, column=1)
 tk.Button(suavizado, text='Supresión de ruido', command= lambda: process(root, 'denoise', savefile.get(), filter_strength)).grid(row=3, column=0, columnspan=2, sticky=tk.W, pady=10)
 
+tk.Label(suavizado, text='Tamaño de la matriz (impar)').grid(row=4, column=0)
+gaussian_k_size = tk.StringVar()
+tk.Entry(suavizado, textvariable=gaussian_k_size).grid(row=4, column=1)
+tk.Label(suavizado, text='Sigma X').grid(row=5, column=0)
+sigma_x = tk.StringVar()
+tk.Entry(suavizado, textvariable=sigma_x).grid(row=5, column=1)
+tk.Label(suavizado, text='Sigma Y').grid(row=6, column=0)
+sigma_y = tk.StringVar()
+tk.Entry(suavizado, textvariable=sigma_y).grid(row=6, column=1)
+tk.Button(suavizado, text='Filtro Gaussiano', command= lambda: process(root, 'gaussian', savefile.get(), [gaussian_k_size, sigma_x, sigma_y])).grid(row=7, column=0, columnspan=2, sticky=tk.W, pady=10)
+
 ###Pestanya de contraste###
 contraste = tk.Frame(tabs)
-tk.Button(contraste, text='Ecualización del histograma', command= lambda: process(root, 'equalizeHist', savefile.get(), None)).pack(anchor='w', padx=10, pady=10)
-tk.Button(contraste, text='Ecualización adaptativa del histograma', command= lambda: process(root, 'CLAHE', savefile.get(), None)).pack(anchor='w', padx=10, pady=10)
+tk.Button(contraste, text='Ecualización del histograma', command= lambda: process(root, 'equalizeHist', savefile.get(), None)).grid(sticky='w', row=0, column=0, columnspan=2, pady=10)
+
+tk.Label(contraste, text='Límite de contraste').grid(row=1, column=0)
+clip_limit = tk.StringVar()
+tk.Entry(contraste, textvariable=clip_limit).grid(row=1, column=1)
+tk.Button(contraste, text='Ecualización adaptativa del histograma', command= lambda: process(root, 'CLAHE', savefile.get(), clip_limit)).grid(sticky='w', row=2, column=0, columnspan=2, pady=10)
 
 
 ###Pestanya de intensidad###

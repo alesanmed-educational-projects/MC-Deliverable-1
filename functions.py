@@ -1,4 +1,6 @@
 import numpy as np
+from matplotlib import pyplot as plt
+from PIL import Image, ImageTk
 import cv2
 
 #Smoothing
@@ -6,6 +8,14 @@ def median(filename, k_size=3):
 	img = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
 
 	blurred = cv2.medianBlur(img, k_size)
+
+	return [img, blurred]
+
+def gaussian(filename, k_size, sigma_x, sigma_y):
+	img = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+
+	blurred = np.copy(img)
+	cv2.GaussianBlur(img, (k_size, k_size), sigma_x, blurred, sigma_y, cv2.BORDER_REPLICATE)
 
 	return [img, blurred]
 
@@ -23,10 +33,10 @@ def equalizeHist(filename):
 
 	return [img, equalized]
 
-def CLAHE(filename):
+def CLAHE(filename, clip_limit=2.0):
 	img = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
 
-	clahe = cv2.createCLAHE()
+	clahe = cv2.createCLAHE(clipLimit=clip_limit)
 	equalized = clahe.apply(img)
 
 	return [img, equalized]
@@ -73,3 +83,28 @@ def sobel(filename, dx=1, dy=1, k_size=3, delta=0):
 	ret, transformed = cv2.threshold(transformed,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
 	return [img, transformed]
+
+def addSaltPepperGaussianNoise():
+	img = cv2.imread('resources/testing/process.jpg', cv2.IMREAD_GRAYSCALE)
+	
+	row,col = img.shape
+	s_vs_p = 0.5
+	amount = 0.01
+	out = img
+	# Salt mode
+	num_salt = np.ceil(amount * img.size * s_vs_p)
+	coords = [np.random.randint(0, i - 1, int(num_salt))
+			for i in img.shape]
+	out[coords] = 255
+
+	# Pepper mode
+	num_pepper = np.ceil(amount* img.size * (1. - s_vs_p))
+	coords = [np.random.randint(0, i - 1, int(num_pepper))
+			for i in img.shape]
+	out[coords] = 0
+
+	out = Image.fromarray(out)
+	out.save('resources/testing/process_salt.jpg')
+
+if __name__ == "__main__":
+	addSaltPepperGaussianNoise()
